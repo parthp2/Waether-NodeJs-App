@@ -1,43 +1,39 @@
 
-// const yargs= require('yargs');
+const yargs= require('yargs');
 
-// const geocode = require('./geocode/geocode');
+const geocode = require('./geocode/geocode');
 
-// const argv= yargs
-//     .options({
-//         a:{
-//             describe:'give address you want to see weather',
-//             demand:true,
-//             alias:'address',
-//             string:true
-//         }
-//     })
-//     .help()
-//     .argv;
+const weather = require('./weather/weather');
 
-// geocode.geocodeAddress(argv.a,(errorMessage,result)=>{
-//     if(errorMessage)
-//     {
-//         console.log(errorMessage);
-//     }
-//     else{
-//         console.log(result);
-//     }
-// });
+const argv= yargs
+    .options({
+        a:{
+            describe:'give address you want to see weather',
+            demand:true,
+            alias:'address',
+            string:true
+        }
+    })
+    .help()
+    .argv;
 
-//77319b3e45e2401ff0d8d3270d884781
-
-const request= require('request')
-
-request({
-    url:'https://api.darksky.net/forecast/77319b3e45e2401ff0d8d3270d884781/37.8267,-122.4233',
-    json:true
-},(error,response,body)=>{
-    if(!error && response.statusCode===200)
+geocode.geocodeAddress(argv.a,(errorMessage,result)=>{
+    if(errorMessage)
     {
-    console.log(body.currently)
+        console.log(errorMessage);
     }
     else{
-        console.log('unable to fetch weather data');
+        console.log(result.address);
+        weather.getWeather(result.latitude,result.longitude,(errorMessage,response)=>{
+            if(errorMessage)
+            {
+                console.log(errorMessage);
+            }
+            else{
+                console.log(`it is currently ${response.Temperature}. It feels like ${response.Appearanttemperatue}`);
+            }
+        });
     }
-})
+});
+
+
