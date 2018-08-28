@@ -2,13 +2,19 @@ const axios = require('axios');
 
 const yargs= require('yargs');
 
+const fs= require('fs');
+
 const argv= yargs
     .options({
         a:{
             describe:'give address you want to see weather',
-            demand:true,
+            demand:false,
             alias:'address',
             string:true
+        },
+        d:{
+            default:91776,
+            alias:'default'
         }
     })
     .help()
@@ -39,8 +45,39 @@ axios.get(geocodeURL).then((response)=>{
 
     var temp=response.data.currently.temperature;
     var appear=response.data.currently.apparentTemperature;
+    var Humidity=response.data.currently.humidity;
+    var Pressure=response.data.currently.pressure;
+    var windspeed=response.data.currently.windSpeed;
+
+    
 
     console.log(`It is ${temp}. It feels like ${appear}`);
+    console.log("Humidity:",Humidity);
+    console.log('Pressure:',Pressure);
+    console.log('wind Speed:',windspeed);
+
+    var weathers=[]
+
+    try
+    {
+      weathers=JSON.parse(fs.readFileSync('weather.json'));
+    }
+    catch(e)
+    {
+         weathers=[];
+    } 
+
+    var weather={
+        temperature:temp,
+        apparentTemperature:appear,
+        Humidity,
+        Pressure,
+        windspeed
+    };
+
+    weathers.push(weather);
+
+    fs.writeFileSync('weather.json',JSON.stringify(weathers));
 
 }).catch((e)=>{
     if(e.code==='ENOTFOUND')
